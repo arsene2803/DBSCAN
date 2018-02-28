@@ -5,25 +5,9 @@ import java.util.List;
 public class Rectangle {
 	private double lower_x,lower_y,top_x,top_y;
 	private double cost;
-	private List<Point> points;
 
-	public List<Point> getPoints() {
-		return points;
-	}
 
-	public void setPoints(List<Point> points) {
-		this.points = points;
-	}
-	/**
-     * Get Number of points belonging to the rectangle
-	 * @return
-	 */
-	public int getNumberOfPoints() {
-		if(points!=null)
-			return points.size();
-		else 
-			return 0;
-	}
+	
 
 	public Rectangle(double lower_x, double lower_y, double top_x, double top_y) {
 		super();
