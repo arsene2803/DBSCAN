@@ -66,7 +66,8 @@ public class Grid {
 			y_tr+=(quotient+1)*(unit_length)-side_length_y;
 			side_length_y=y_tr-y_lb;
 		}
-		
+		//creating the mbr
+		S=new Rectangle(x_lb, y_lb, x_lb+side_length_x, y_lb+side_length_y);
 		/*
 		 * determine the number of rows and columns of the grid 
 		 */

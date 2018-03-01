@@ -2,8 +2,16 @@ package partition;
 
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import com.github.davidmoten.rtree.Entry;
+import com.github.davidmoten.rtree.RTree;
+import com.github.davidmoten.rtree.geometry.Geometries;
+import com.github.davidmoten.rtree.geometry.Point;
 
 import util.SplitLine;
 import util.SplitLine.splitType;
@@ -11,6 +19,7 @@ import util.SplitLine.splitType;
 public class CostSpatialPartitioning {
 	private Grid smbr;
 	private List<Rectangle> partitions;
+	private Map<Rectangle,List<Rectangle>> instersectingPartitions;
 
 	public CostSpatialPartitioning(Grid smbr) {
 		super();
@@ -20,6 +29,7 @@ public class CostSpatialPartitioning {
 	
 	public void partition(double maxcost) {
 		Deque<Grid> taskqueue=new LinkedList<>();
+		taskqueue.addLast(smbr);
 		while(!taskqueue.isEmpty()) {
 			Grid grid=taskqueue.removeFirst();
 			if(estimateCost(grid)>maxcost) {
@@ -137,10 +147,55 @@ public class CostSpatialPartitioning {
 		}
 		return cost;
 	}
+	public void findIntersections(double searchDistance) {
+		if(instersectingPartitions==null)
+			instersectingPartitions=new HashMap<>();
+		//create RTREE
+		RTree<String, com.github.davidmoten.rtree.geometry.Rectangle> rtree= RTree.create();
+		//add rectangles to the rtree
+		for(int i=0;i<partitions.size();i++) {
+			Rectangle r=partitions.get(i);
+			rtree=rtree.add(i+"",Geometries.rectangle(r.getLower_x(), r.getLower_y(), r.getTop_x(),r.getTop_y()));
+		}
+		//search for neighbours
+		for(int i=0;i<partitions.size();i++) {
+			Rectangle r=partitions.get(i);
+			Iterator<Entry<String,com.github.davidmoten.rtree.geometry.Rectangle >> nbhdP=rtree.search(Geometries.rectangle(r.getLower_x(), r.getLower_y(), r.getTop_x(),r.getTop_y()), searchDistance).
+					toBlocking().toIterable().iterator();
+			List<String> nbhd_list=new ArrayList<>();
+			while(nbhdP.hasNext()) {
+				nbhd_list.add(nbhdP.next().value());
+			}
+			
+			for(int j=0;j<nbhd_list.size();j++) {
+				int id=Integer.parseInt(nbhd_list.get(j));
+				if(id!=i) {
+					Rectangle idr=partitions.get(id);
+					if((!instersectingPartitions.containsKey(idr)||
+							(!instersectingPartitions.get(idr).contains(r)))) {
+						if(instersectingPartitions.containsKey(r)) {
+							List<Rectangle> interpartitions=instersectingPartitions.get(r);
+							interpartitions.add(partitions.get(id));
+						}
+						else {
+							List<Rectangle> interpartitions=new ArrayList<>();
+							interpartitions.add(partitions.get(id));
+							instersectingPartitions.put(r, interpartitions);
+							
+						}	
+					}
+						
+				}
+				
+					
+			}
+			
+		}
+	}
 
 	private double calCost(long numberOfPoints,long totalNumPoints) {
 		// TODO Auto-generated method stub
-		double f=3;
+		double f=100;
 		double h=1+Math.ceil(Math.log10((totalNumPoints/f))/Math.log10(f));
 		double cost=1+h+Math.sqrt(numberOfPoints)*(2/(Math.sqrt(f)-1))+numberOfPoints*(1/(f-1));
 		return cost;
