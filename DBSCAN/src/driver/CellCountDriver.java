@@ -3,6 +3,7 @@ package driver;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -16,11 +17,12 @@ import partition.Grid;
 import reducer.NumCellReducer;
 import util.SU;
 
-public class DbscanDriver {
+public class CellCountDriver {
 
 
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
+		//Checking for the number of argument
 		if(args.length != 7) {
 			System.out.println(args.length);
 			throw new IllegalArgumentException("Arguments expected- x_lb y_lb x_tr y_tr epsilon input output"
@@ -37,8 +39,7 @@ public class DbscanDriver {
 		conf.set("num_rows", grid.getNum_rows()+"");
 		conf.set("unit_length",grid.getUnit_length()+"");
 		Job job = Job.getInstance(conf, "Partitioning");
-		job.setJarByClass(driver.DbscanDriver.class);
-		//Checking for the number of arguments
+		job.setJarByClass(driver.CellCountDriver.class);
 	
 		
 		// TODO: specify a mapper
@@ -47,6 +48,8 @@ public class DbscanDriver {
 		job.setReducerClass(NumCellReducer.class);
 
 		// TODO: specify output types
+		job.setMapOutputKeyClass(LongWritable.class);
+	    job.setMapOutputValueClass(IntWritable.class);
 		job.setOutputKeyClass(LongWritable.class);
 		job.setOutputValueClass(LongWritable.class);
 

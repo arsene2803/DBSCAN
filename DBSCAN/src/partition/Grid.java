@@ -112,8 +112,8 @@ public class Grid {
 	}
 
 
-	public Grid(double lower_x, double lower_y, double top_x, double top_y) {
-		
+	public Grid(double lower_x, double lower_y, double top_x, double top_y,double epsilon) {
+		unit_length=2*epsilon;
 		S = new Rectangle(lower_x, lower_y, top_x, top_y);
 	}
 

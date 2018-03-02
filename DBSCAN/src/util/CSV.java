@@ -1,5 +1,6 @@
 package util;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -33,5 +34,10 @@ public class CSV {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	public static File[] getFiles(String outputPath) {
+		File folder = new File(outputPath);
+		File[] listOfFiles = folder.listFiles();
+		return listOfFiles;
 	}
 }

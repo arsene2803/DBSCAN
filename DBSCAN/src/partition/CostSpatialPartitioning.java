@@ -27,13 +27,42 @@ public class CostSpatialPartitioning {
 		partitions=new ArrayList<>();
 	}
 	
-	public void partition(double maxcost) {
+	public CostSpatialPartitioning() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public Grid getSmbr() {
+		return smbr;
+	}
+
+	public void setSmbr(Grid smbr) {
+		this.smbr = smbr;
+	}
+
+	public List<Rectangle> getPartitions() {
+		return partitions;
+	}
+
+	public void setPartitions(List<Rectangle> partitions) {
+		this.partitions = partitions;
+	}
+
+	public Map<Rectangle, List<Rectangle>> getInstersectingPartitions() {
+		return instersectingPartitions;
+	}
+
+	public void setInstersectingPartitions(Map<Rectangle, List<Rectangle>> instersectingPartitions) {
+		this.instersectingPartitions = instersectingPartitions;
+	}
+
+	public void partition(double maxcost,double epsilon) {
 		Deque<Grid> taskqueue=new LinkedList<>();
 		taskqueue.addLast(smbr);
 		while(!taskqueue.isEmpty()) {
 			Grid grid=taskqueue.removeFirst();
-			if(estimateCost(grid)>maxcost) {
-				List<Grid> splits=costBasedBinarySplit(grid);
+			double cost=estimateCost(grid);
+			if(cost>maxcost) {
+				List<Grid> splits=costBasedBinarySplit(grid,epsilon);
 				int index=0;
 				while(index!=2) {
 					taskqueue.add(splits.get(index++));
@@ -42,78 +71,40 @@ public class CostSpatialPartitioning {
 			else
 				partitions.add(grid.getS());
 		}
+		for(int i=0;i<partitions.size();i++) {
+			partitions.get(i).setId(i);
+		}
 		
 		
 	}
 
-	private List<Grid> costBasedBinarySplit(Grid grid) {
+	private List<Grid> costBasedBinarySplit(Grid grid,double epsilon) {
 		// TODO Auto-generated method stub 
 		List<Grid> splits=new ArrayList<>();
 		Grid S1 = null,S2 = null;
-		List<SplitLine> splitlines=new ArrayList<>();
 		double minCost=Double.MAX_VALUE;
 		//get x splits
 		for(double x_split=grid.getLowerBottomX()+grid.getUnit_length();x_split<grid.getTopRightX();x_split+=grid.getUnit_length()) {
-			splitlines.add(new SplitLine(x_split,splitType.X));
-		}
-		//get Y splits
-		for(double y_split=grid.getLowerBottomY()+grid.getUnit_length();y_split<grid.getTopRightY();y_split+=grid.getUnit_length()) {
-			splitlines.add(new SplitLine(y_split,splitType.Y));
-		}
-		for(int i=0;i<splitlines.size();i++) {
 			Grid split_1,split_2;
-			SplitLine line=splitlines.get(i);
+			SplitLine line=new SplitLine(x_split,splitType.X);
 			double x_low_1,y_low_1,x_top_1,y_top_1;
 			double x_low_2,y_low_2,x_top_2,y_top_2;
+			//get the sub rectangles corresponding to the split
+			x_low_1=grid.getLowerBottomX();
+			y_low_1=grid.getLowerBottomY();
+			y_top_1=grid.getTopRightY();
+			x_top_1=line.getSplit();
+			x_low_2=line.getSplit();
+			y_low_2=grid.getLowerBottomY();
+			y_top_2=grid.getTopRightY();
+			x_top_2=grid.getTopRightX();
 			
-			if(line.getType()==splitType.X) {
-				//get the sub rectangles corresponding to the split
-				x_low_1=grid.getLowerBottomX();
-				y_low_1=grid.getLowerBottomY();
-				y_top_1=grid.getTopRightY();
-				x_top_1=line.getSplit();
-			    x_low_2=line.getSplit();
-				y_low_2=grid.getLowerBottomY();
-				y_top_2=grid.getTopRightY();
-				x_top_2=grid.getTopRightX();
-				
-			}
-			else {
-				//get the sub rectangles corresponding to the split
-				x_low_1=grid.getLowerBottomX();
-				y_low_1=grid.getLowerBottomY();
-				y_top_1=line.getSplit();
-				x_top_1=grid.getTopRightX();
-				x_low_2=grid.getLowerBottomX();
-				y_low_2=line.getSplit();
-				y_top_2=grid.getTopRightY();
-				x_top_2=grid.getTopRightX();
-				
-				
-			}
-			split_1=new Grid(x_low_1,y_low_1,x_top_1,y_top_1);
-			split_2=new Grid(x_low_2,y_low_2,x_top_2,y_top_2);
+			split_1=new Grid(x_low_1,y_low_1,x_top_1,y_top_1,epsilon);
+			split_2=new Grid(x_low_2,y_low_2,x_top_2,y_top_2,epsilon);
 			//assigning cells now
 			List<Cell> cells1=new ArrayList<>();
 			List<Cell> cells2=new ArrayList<>();
-			List<Cell> gridcells=grid.getCells();
-			for(int j=0;j<gridcells.size();j++) {
-				Cell c=gridcells.get(j);
-				if(line.getType()==splitType.X) {
-					if(c.getTop_x()<=line.getSplit()) {
-						cells1.add(c);
-					}
-					else
-						cells2.add(c);
-				}
-				else {
-					if(c.getTop_y()<=line.getSplit()) {
-						cells1.add(c);
-					}
-					else
-						cells2.add(c);
-				}
-			}
+			separateCells(grid, line, cells1, cells2);
 			split_1.setCells(cells1);
 			split_2.setCells(cells2);
 			
@@ -126,11 +117,68 @@ public class CostSpatialPartitioning {
 				S2=split_2;
 				minCost=diff;
 			}
+			
 				
+			
+		}
+		//get Y splits
+		for(double y_split=grid.getLowerBottomY()+grid.getUnit_length();y_split<grid.getTopRightY();y_split+=grid.getUnit_length()) {
+			Grid split_1,split_2;
+			SplitLine line=new SplitLine(y_split,splitType.Y);
+			double x_low_1,y_low_1,x_top_1,y_top_1;
+			double x_low_2,y_low_2,x_top_2,y_top_2;
+			//get the grid corners
+			x_low_1=grid.getLowerBottomX();
+			y_low_1=grid.getLowerBottomY();
+			y_top_1=line.getSplit();
+			x_top_1=grid.getTopRightX();
+			x_low_2=grid.getLowerBottomX();
+			y_low_2=line.getSplit();
+			y_top_2=grid.getTopRightY();
+			x_top_2=grid.getTopRightX();
+			split_1=new Grid(x_low_1,y_low_1,x_top_1,y_top_1,epsilon);
+			split_2=new Grid(x_low_2,y_low_2,x_top_2,y_top_2,epsilon);
+			//assigning cells now
+			List<Cell> cells1=new ArrayList<>();
+			List<Cell> cells2=new ArrayList<>();
+			separateCells(grid, line, cells1, cells2);
+			split_1.setCells(cells1);
+			split_2.setCells(cells2);
+			
+			//get the costs
+			double split_1_cost=estimateCost(split_1);
+			double split_2_cost=estimateCost(split_2);
+			double diff=Math.abs(split_1_cost-split_2_cost);
+			if(diff<minCost) {
+				S1=split_1;
+				S2=split_2;
+				minCost=diff;
 			}
-		splits.add(S2);
+		}
 		splits.add(S1);
+		splits.add(S2);
 		return splits;
+	}
+
+	public void separateCells(Grid grid, SplitLine line, List<Cell> cells1, List<Cell> cells2) {
+		List<Cell> gridcells=grid.getCells();
+		for(int j=0;j<gridcells.size();j++) {
+			Cell c=gridcells.get(j);
+			if(line.getType()==splitType.X) {
+				if(c.getTop_x()<=line.getSplit()) {
+					cells1.add(c);
+				}
+				else
+					cells2.add(c);
+			}
+			else {
+				if(c.getTop_y()<=line.getSplit()) {
+					cells1.add(c);
+				}
+				else
+					cells2.add(c);
+			}
+		}
 	}
 
 	private double estimateCost(Grid grid) {
@@ -141,9 +189,17 @@ public class CostSpatialPartitioning {
 		for(int i=0;i<cells.size();i++) {
 			totalNumPoints+=cells.get(i).getNumPoints();
 		}
+		if(totalNumPoints==0)
+			return cost;
+			
 		for(int i=0;i<cells.size();i++) {
-			double costCell=calCost(cells.get(i).getNumPoints(),totalNumPoints);
-			cost+=costCell;
+			long numPoints=cells.get(i).getNumPoints();
+			if(numPoints!=0) {
+					double costCell=calCost(numPoints,totalNumPoints);
+					cost+=costCell;
+				
+			}
+			
 		}
 		return cost;
 	}

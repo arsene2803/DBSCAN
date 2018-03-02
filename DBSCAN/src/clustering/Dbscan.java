@@ -38,6 +38,7 @@ public class Dbscan {
 				while(nbhdP.hasNext()) {
 					nbhd_list.add(nbhdP.next().geometry());
 				}
+				nbhd_list.remove(p);
 				//check whether noise point
 				if(nbhd_list.size()<minPnts)
 					type_map.put(p, type.NOISE);
@@ -57,6 +58,7 @@ public class Dbscan {
 								count++;
 								temp.add(nbhdQ.next().geometry());
 							}
+							temp.remove(q);
 							//check if core point
 							if(count >=minPnts) {
 								type_map.put(q, type.CORE);

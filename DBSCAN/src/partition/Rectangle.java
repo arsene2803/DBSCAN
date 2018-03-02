@@ -4,10 +4,27 @@ import java.util.List;
 
 public class Rectangle {
 	private double lower_x,lower_y,top_x,top_y;
-	private double cost;
+	protected double cost;
+	private int id;
 
 
 	
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public double getCost() {
+		return cost;
+	}
+
+	public void setCost(double cost) {
+		this.cost = cost;
+	}
 
 	public Rectangle(double lower_x, double lower_y, double top_x, double top_y) {
 		super();
@@ -48,6 +65,14 @@ public class Rectangle {
 	public void setTop_y(double top_y) {
 		this.top_y = top_y;
 	}
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.lower_x+","+this.lower_y+","+this.top_x+","+this.top_y;
+	}
+	
+	
 	
 	
 }
