@@ -34,6 +34,29 @@ public class Rectangle {
 		this.top_y = top_y;
 	}
 
+	public Rectangle(String lower_x, String lower_y, String top_x, String top_y) {
+		// TODO Auto-generated constructor stub
+		super();
+		this.lower_x = Double.parseDouble(lower_x);
+		this.lower_y = Double.parseDouble(lower_y);
+		this.top_x = Double.parseDouble(top_x);
+		this.top_y = Double.parseDouble(top_y);
+	}
+	
+	public Rectangle getOuterRectangle(double epsilon) {
+		
+		return new Rectangle(this.lower_x-epsilon, this.lower_y-epsilon,
+				this.top_x+epsilon, this.top_y+epsilon);
+		
+	}
+	
+	public Rectangle getInnerRectangle(double epsilon) {
+		
+		return new Rectangle(this.lower_x+epsilon, this.lower_y+epsilon,
+				this.top_x-epsilon, this.top_y-epsilon);
+		
+	}
+
 	public double getLower_x() {
 		return lower_x;
 	}

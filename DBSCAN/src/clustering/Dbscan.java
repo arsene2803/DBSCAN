@@ -15,7 +15,7 @@ import util.Configuration.*;
 
 public class Dbscan {
 	
-	public static List<Point> createClusters(List<Point> pl,int minPnts,double epsilon,
+	public static List<Point> createClusters(List<Point> pl,long minPnts,double epsilon,
 			Map<Point,type> type_map,Map<Point,flag> flag_map,Map<Point,Integer> cmap){
 		int clusterID=0;
 		//creating 
@@ -24,6 +24,7 @@ public class Dbscan {
 		//add the points to rtree
 		for(int i=0;i<pl.size();i++) {
 			Point p=pl.get(i);
+			flag_map.put(p, flag.not_visited);
 			rtree=rtree.add("Point Number-"+i,p);
 		}
 		for(int i=0;i<pl.size();i++) {
@@ -43,7 +44,10 @@ public class Dbscan {
 				if(nbhd_list.size()<minPnts)
 					type_map.put(p, type.NOISE);
 				else
+					
 				{
+					type_map.put(p, type.CORE);
+					cmap.put(p, clusterID);
 					for(int j=0;j<nbhd_list.size();j++) {
 						Point q=nbhd_list.get(j);
 						if(flag_map.get(q)==flag.not_visited) {
