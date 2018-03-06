@@ -41,8 +41,11 @@ public class Dbscan {
 				}
 				nbhd_list.remove(p);
 				//check whether noise point
-				if(nbhd_list.size()<minPnts)
+				if(nbhd_list.size()<minPnts) {
 					type_map.put(p, type.NOISE);
+					cmap.put(p, -1);
+					
+				}
 				else
 					
 				{

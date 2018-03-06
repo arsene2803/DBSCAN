@@ -56,6 +56,14 @@ public class Rectangle {
 				this.top_x-epsilon, this.top_y-epsilon);
 		
 	}
+	public boolean containsPoint(com.github.davidmoten.rtree.geometry.Point p) {
+		if(p.x()>=this.getLower_x()&&p.x()<=this.getTop_x()) {
+			if(p.y()>=this.getLower_y()&&p.y()<=this.getTop_y())
+				return true;
+		}
+		return false;
+		
+	}
 
 	public double getLower_x() {
 		return lower_x;

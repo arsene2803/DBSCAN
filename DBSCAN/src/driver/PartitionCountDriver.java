@@ -19,6 +19,7 @@ import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import mapper.PartitionCount;
+import reducer.Cluster;
 
 public class PartitionCountDriver {
 
@@ -33,22 +34,24 @@ public class PartitionCountDriver {
 		DistributedCache.addCacheFile(new Path(args[2]).toUri(), conf);
 		conf.set("epsilon",args[3]);
 		conf.set("minPnts",args[4]);
-		int partitionCount=getPartititionCount(args, conf);
+		//int partitionCount=getPartititionCount(args, conf);
+		int partitionCount=2;
 		Job job = Job.getInstance(conf, "Partition");
 		job.setJarByClass(driver.PartitionCountDriver.class);
 		// TODO: specify a mapper
 		job.setMapperClass(PartitionCount.class);
 		// TODO: specify a reducer
-		//job.setReducerClass(Reducer.class);
-		job.setNumReduceTasks(0);
+		job.setReducerClass(Cluster.class);
 		// TODO: specify output types
-		job.setOutputKeyClass(LongWritable.class);
+		job.setMapOutputKeyClass(LongWritable.class);
+		job.setMapOutputValueClass(Text.class);
+		job.setOutputKeyClass(Text.class);
 		job.setOutputValueClass(Text.class);
 		//set the Multiple outputs
 		for(int i=0;i<partitionCount;i++) {
-			MultipleOutputs.addNamedOutput(job, "output-"+i, TextOutputFormat.class, Text.class, Text.class);
-			MultipleOutputs.addNamedOutput(job, "AP-"+i, TextOutputFormat.class, Text.class, Text.class);
-			MultipleOutputs.addNamedOutput(job, "BP-"+i, TextOutputFormat.class, Text.class, Text.class);
+			MultipleOutputs.addNamedOutput(job, "output"+i, TextOutputFormat.class, Text.class, Text.class);
+			MultipleOutputs.addNamedOutput(job, "AP"+i, TextOutputFormat.class, Text.class, Text.class);
+			MultipleOutputs.addNamedOutput(job, "BP"+i, TextOutputFormat.class, Text.class, Text.class);
 		}
 		// TODO: specify input and output DIRECTORIES (not files)
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
