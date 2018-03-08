@@ -8,7 +8,16 @@ public class Point  {
 	private double y;
 	private type type;
 	private flag flag;
+	private long cluster_id;
 	
+	public long getCluster_id() {
+		return cluster_id;
+	}
+
+	public void setCluster_id(long cluster_id) {
+		this.cluster_id = cluster_id;
+	}
+
 	public flag getFlag() {
 		return flag;
 	}
@@ -31,7 +40,22 @@ public class Point  {
 		this.y = y;
 		this.flag=flag.not_visited;
 	}
+	public Point(String x, String y) {
+		super();
+		this.x = Double.parseDouble(x);
+		this.y = Double.parseDouble(y);
+		this.flag=flag.not_visited;
+	}
 	
+
+	@Override
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+		Point p=(Point) obj;
+		if(this.x==p.getX()&&this.y==p.getY())
+			return true;
+		return false;
+	}
 
 	public Point() {
 		// TODO Auto-generated constructor stub

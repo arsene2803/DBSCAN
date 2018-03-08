@@ -10,6 +10,9 @@ public class GridTest {
 	}
 	public static void main(String[] args) {
 		testGrid();
+		String name="AP199-";
+		Long id=Long.parseLong(name.split("-")[0]);
+		id+=1;
 	}
 
 }

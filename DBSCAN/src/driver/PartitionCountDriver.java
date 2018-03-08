@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -25,9 +26,9 @@ public class PartitionCountDriver {
 
 	public static void main(String[] args) throws Exception {
 		//Checking for the number of argument
-		if(args.length != 5) {
+		if(args.length != 6) {
 			System.out.println(args.length);
-			throw new IllegalArgumentException("Arguments expected- input output partition epsilon minPnts"
+			throw new IllegalArgumentException("Arguments expected- input output partition intersecting_partition epsilon minPnts"
 					);
 		}
 		Configuration conf = new Configuration();
@@ -35,7 +36,7 @@ public class PartitionCountDriver {
 		conf.set("epsilon",args[3]);
 		conf.set("minPnts",args[4]);
 		//int partitionCount=getPartititionCount(args, conf);
-		int partitionCount=2;
+		int partitionCount=4;
 		Job job = Job.getInstance(conf, "Partition");
 		job.setJarByClass(driver.PartitionCountDriver.class);
 		// TODO: specify a mapper
@@ -59,6 +60,12 @@ public class PartitionCountDriver {
 
 		if (!job.waitForCompletion(true))
 			return;
+		Configuration conf2 = new Configuration();
+		FileSystem fs = FileSystem.get(conf2);
+		addOutput(fs,new Path(args[1]) , conf2);
+		
+
+		
 	}
 
 	public static int getPartititionCount(String[] args, Configuration conf) throws IOException {
@@ -74,5 +81,13 @@ public class PartitionCountDriver {
 		}
 		return count;
 	}
-
+	public static void addOutput(FileSystem fs, Path p, Configuration conf) throws IOException {
+		FileStatus[] status = fs.listStatus(p);
+		for (int i = 0; i < status.length; i++) {
+			if (status[i].getPath().getName().startsWith("AP") || status[i].getPath().getName().startsWith("BP")) {
+				DistributedCache.addCacheFile(status[i].getPath().toUri(), conf);
+			}
+				
+			}
+		}
 }

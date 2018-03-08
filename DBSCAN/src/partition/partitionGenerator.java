@@ -60,14 +60,15 @@ public class partitionGenerator {
 		for(Rectangle r:instersectingPartitions.keySet()) {
 			int key=r.getId();
 			List<Rectangle> interSectR=instersectingPartitions.get(r);
-			String value="";
 			for(int i=0;i<interSectR.size();i++) {
+				String value="";
 				Rectangle ir=interSectR.get(i);
-				value+=ir.getId()+",";
+				value+=ir.getId();
+				String line=key+" "+value;
+				writer.writeNext(line.split(" "));
 			}
-			value=value.substring(0, value.length()-1);
-			String line=key+" "+value;
-			writer.writeNext(line.split(" "));
+			
+			
 		}
 		writer.close();
 		
