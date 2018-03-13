@@ -9,6 +9,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -19,22 +20,24 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
+import mapper.MergeMapper;
 import mapper.PartitionCount;
 import reducer.Cluster;
+import reducer.Merge;
 
 public class PartitionCountDriver {
 
 	public static void main(String[] args) throws Exception {
 		//Checking for the number of argument
-		if(args.length != 6) {
+		if(args.length != 7) {
 			System.out.println(args.length);
-			throw new IllegalArgumentException("Arguments expected- input output partition intersecting_partition epsilon minPnts"
+			throw new IllegalArgumentException("Arguments expected- input output partition intersecting_partition merge_output epsilon minPnts"
 					);
 		}
 		Configuration conf = new Configuration();
 		DistributedCache.addCacheFile(new Path(args[2]).toUri(), conf);
-		conf.set("epsilon",args[3]);
-		conf.set("minPnts",args[4]);
+		conf.set("epsilon",args[5]);
+		conf.set("minPnts",args[6]);
 		//int partitionCount=getPartititionCount(args, conf);
 		int partitionCount=4;
 		Job job = Job.getInstance(conf, "Partition");
@@ -58,11 +61,32 @@ public class PartitionCountDriver {
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-		if (!job.waitForCompletion(true))
-			return;
-		Configuration conf2 = new Configuration();
-		FileSystem fs = FileSystem.get(conf2);
-		addOutput(fs,new Path(args[1]) , conf2);
+		if (!job.waitForCompletion(true)) {
+			Configuration conf2 = new Configuration();
+			FileSystem fs = FileSystem.get(conf2);
+			addOutput(fs,new Path(args[1]) , conf2);
+			Job job2 = Job.getInstance(conf2, "Merging");
+			job2.setJarByClass(driver.PartitionCountDriver.class);
+			// TODO: specify a mapper
+			job2.setMapperClass(MergeMapper.class);
+			// TODO: specify a reducer
+			job2.setReducerClass(Merge.class);
+			// TODO: specify output types
+			job2.setMapOutputKeyClass(NullWritable.class);
+			job2.setMapOutputValueClass(Text.class);
+			job2.setOutputKeyClass(Text.class);
+			job2.setOutputValueClass(Text.class);
+			job2.setOutputFormatClass(TextOutputFormat.class);
+			
+			// TODO: specify input and output DIRECTORIES (not files)
+			FileInputFormat.setInputPaths(job2, new Path(args[3]));
+			FileOutputFormat.setOutputPath(job2, new Path(args[4]));
+			if (!job2.waitForCompletion(true)) {
+				return;
+			}
+				
+		}
+		
 		
 
 		

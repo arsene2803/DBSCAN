@@ -8,13 +8,13 @@ public class Point  {
 	private double y;
 	private type type;
 	private flag flag;
-	private long cluster_id;
+	private String cluster_id;
 	
-	public long getCluster_id() {
+	public String getCluster_id() {
 		return cluster_id;
 	}
 
-	public void setCluster_id(long cluster_id) {
+	public void setCluster_id(String cluster_id) {
 		this.cluster_id = cluster_id;
 	}
 

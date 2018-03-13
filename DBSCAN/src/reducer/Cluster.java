@@ -60,16 +60,16 @@ public class Cluster extends Reducer<LongWritable, Text, Text, Text> {
 		partition.Rectangle ir=r.getInnerRectangle(epsilon);
 		for(int i=0;i<pl.size();i++) {
 			Point p=pl.get(i);
-			output.write("output"+key, new Text(""), new Text(p.x()+","+p.y()+"|"+type_map.get(p)+"|"+cmap.get(p)));
+			output.write("output"+key, new Text(p.toString()), new Text(type_map.get(p)+"|"+cmap.get(p)+"-"+key));
 			if(!ir.containsPoint(p)) {
 				if(type_map.get(p)==type.CORE) {
 					if(r.containsPoint(p))
-						output.write("AP"+key, new Text(""), new Text(p.x()+","+p.y()+"|"+type_map.get(p)+"|"+cmap.get(p)));
+						output.write("AP"+key, new Text(p.toString()), new Text(type_map.get(p)+"|"+cmap.get(p)+"-"+key));
 					
 				}
 				else if(type_map.get(p)!=type.NOISE) {
 					if(!r.containsPoint(p))
-						output.write("BP"+key, new Text(""), new Text(p.x()+","+p.y()+"|"+type_map.get(p)+"|"+cmap.get(p)));
+						output.write("BP"+key,  new Text(p.toString()), new Text(type_map.get(p)+"|"+cmap.get(p)+"-"+key));
 				}
 			}
 		}

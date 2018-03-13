@@ -4,12 +4,14 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.filecache.DistributedCache;
@@ -17,9 +19,9 @@ import org.apache.hadoop.mapreduce.filecache.DistributedCache;
 import partition.Pair;
 import partition.Point;
 
-public class MergeMapper extends Mapper<LongWritable, Text, LongWritable, LongWritable> {
-	private static Map<Long,List<Point>> APMap=new HashedMap();
-	private static Map<Long,List<Point>> BPMap=new HashedMap();
+public class MergeMapper extends Mapper<LongWritable, Text, NullWritable, Text> {
+	private static Map<Long,List<Point>> APMap=new HashMap<>();
+	private static Map<Long,List<Point>> BPMap=new HashMap<>();
 	private BufferedReader reader;
 	
 
@@ -34,8 +36,8 @@ public class MergeMapper extends Mapper<LongWritable, Text, LongWritable, LongWr
 		//get ap1 intersection bp1
 		List<Pair> intersection_1=new ArrayList<>();
 		List<Pair> intersection_2=new ArrayList<>();
-		getIntersectionPoints(ap1, bp1, intersection_1);
-		getIntersectionPoints(ap2, bp2, intersection_2);
+		getIntersectionPoints(ap1, bp2, intersection_1);
+		getIntersectionPoints(ap2, bp1, intersection_2);
 		writeClusterId(context, intersection_1);
 		writeClusterId(context, intersection_2);
 		
@@ -46,7 +48,7 @@ public class MergeMapper extends Mapper<LongWritable, Text, LongWritable, LongWr
 			Pair p=intersection_1.get(i);
 			Point p1=p.getP1();
 			Point p2=p.getP2();
-			context.write(new LongWritable(p1.getCluster_id()),new LongWritable(p2.getCluster_id()));
+			context.write(null,new Text(p1.getCluster_id()+"|"+p2.getCluster_id()));
 			
 		}
 	}
@@ -65,14 +67,14 @@ public class MergeMapper extends Mapper<LongWritable, Text, LongWritable, LongWr
 	}
 
 	@Override
-	protected void setup(Mapper<LongWritable, Text, LongWritable, LongWritable>.Context context)
+	protected void setup(Mapper<LongWritable, Text, NullWritable, Text>.Context context)
 			throws IOException, InterruptedException {
 		// TODO Auto-generated method stub
 		super.setup(context);
 		Path[] cacheFilesLocal = DistributedCache.getLocalCacheFiles(context.getConfiguration());
 		for (Path eachPath : cacheFilesLocal) {
 			System.out.println(eachPath.toString());
-			if (eachPath.getName().startsWith("part")) {
+			if (eachPath.getName().startsWith("AP")||eachPath.getName().startsWith("BP")) {
 				loadSeedHashMap(eachPath, context);
 			}
 }
@@ -92,7 +94,7 @@ public class MergeMapper extends Mapper<LongWritable, Text, LongWritable, LongWr
 		while (inputline != null) {
 			input = inputline.split("\t");
 			String[] coord=input[0].split(",");
-			long clusterid=Long.parseLong(input[1].split("|")[1]);
+			String clusterid=input[1].split("|")[1];
 			Point p=new Point(coord[0],coord[1]);
 			p.setCluster_id(clusterid);
 			pl.add(p);
