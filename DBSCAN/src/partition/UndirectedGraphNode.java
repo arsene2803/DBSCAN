@@ -24,4 +24,11 @@ public class UndirectedGraphNode {
 	public List<UndirectedGraphNode> getNeighbors(){
 		return neighbors;
 	}
+
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return cluster_id.hashCode();
+	}
+	
 }

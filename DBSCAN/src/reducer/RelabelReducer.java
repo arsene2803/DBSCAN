@@ -15,7 +15,7 @@ public class RelabelReducer extends Reducer<Text, Text, Text, Text> {
 		type ptype=type.NOISE;
 		String clusterId=null;
 		for (Text val : values) {
-			String[] line=val.toString().split("|");
+			String[] line=val.toString().split("&");
 			type flag=type.valueOf(line[0]);
 			String id=line[1];
 			if(clusterId==null)

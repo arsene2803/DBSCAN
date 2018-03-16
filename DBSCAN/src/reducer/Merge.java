@@ -8,25 +8,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.ObjectUtils.Null;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import partition.Graph;
 import partition.UndirectedGraphNode;
 
-public class Merge extends Reducer<Text, Text, Text, Text> {
+public class Merge extends Reducer<NullWritable, Text, Text, Text> {
 
-	public void reduce(Text _key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+	public void reduce(NullWritable _key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 		// process values
 		HashSet<String> vertices=new HashSet<String>();
 		List<UndirectedGraphNode> nodes=new ArrayList<>();
-		Map<String,UndirectedGraphNode> nmap=new HashMap();
+		Map<String,UndirectedGraphNode> nmap=new HashMap<String, UndirectedGraphNode>();
 		
 		for (Text val : values) {
-			String ids=val.toString();
-			StringTokenizer st=new StringTokenizer(ids,"|");
-			String id1=st.nextToken().replace("\"", "");
-			String id2=st.nextToken().replace("\"", "");
+			String[] ids=val.toString().split("&");
+			String id1=ids[0].replace("\"", "");
+			String id2=ids[1].replace("\"", "");
 			addVertex(vertices, nmap, id1,nodes);
 			addVertex(vertices, nmap, id2,nodes);
 			addEdge(nmap, id1, id2);
@@ -37,7 +38,7 @@ public class Merge extends Reducer<Text, Text, Text, Text> {
 		for(int i=0;i<components.size();i++) {
 			List<String> cc=components.get(i);
 			for(int j=0;j<cc.size();j++) {
-				String clusterID=cc.get(i);
+				String clusterID=cc.get(j);
 				context.write(new Text(clusterID), new Text(globalID+""));
 			}
 			globalID+=1;

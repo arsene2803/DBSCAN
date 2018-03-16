@@ -12,7 +12,7 @@ import com.github.davidmoten.rtree.geometry.Point;
 public class TestCostSpatialPartitioning {
 	public static void main(String args[]) {
 		Grid grid=new Grid();
-		grid.createGrid(0, 0, 50, 50, 5);
+		grid.createGrid(0, 0, 100, 100, 5);
 		List<Cell> cells=grid.getCells();
 		cells.get(0).setNumPoints(0);
 		cells.get(1).setNumPoints(0);
@@ -40,7 +40,12 @@ public class TestCostSpatialPartitioning {
 		cells.get(23).setNumPoints(0);
 		cells.get(24).setNumPoints(1);
 		CostSpatialPartitioning partioner=new CostSpatialPartitioning(grid);
-		partioner.partition(20,5);
+		//partioner.partition(20,5);
+		List<Rectangle> partitions =new ArrayList<>();
+		partitions.add(new Rectangle(0, 0, 50, 50));
+		partitions.add(new Rectangle(50, 0, 100, 50));
+		partitions.add(new Rectangle(0, 50, 100, 100));
+		partioner.setPartitions(partitions);
 		partioner.findIntersections(5);
 		partioner.hashCode();
 		//creating RTREE

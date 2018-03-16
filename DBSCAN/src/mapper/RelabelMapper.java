@@ -32,13 +32,13 @@ public class RelabelMapper extends Mapper<LongWritable, Text, Text, Text> {
 			coord[i++]=Double.parseDouble(st.nextToken().replace("\"", ""));
 		}
 		Point p=new Point(coord[0],coord[1]);
-		String[] info=line[1].split("|");
+		String[] info=line[1].split("&");
 		type ptype=type.valueOf(info[0]);
 		String cluster_id=info[1];
 		if(mergeMap.containsKey(cluster_id))
-			context.write(new Text(p.toString()), new Text(ptype+"|"+mergeMap.get(cluster_id)));
+			context.write(new Text(p.toString()), new Text(ptype+"&"+mergeMap.get(cluster_id)));
 		else 
-			context.write(new Text(p.toString()), new Text(ptype+"|"+cluster_id));
+			context.write(new Text(p.toString()), new Text(ptype+"&"+cluster_id));
 
 	}
 

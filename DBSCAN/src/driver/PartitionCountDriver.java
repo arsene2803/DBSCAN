@@ -38,8 +38,7 @@ public class PartitionCountDriver {
 		DistributedCache.addCacheFile(new Path(args[2]).toUri(), conf);
 		conf.set("epsilon",args[5]);
 		conf.set("minPnts",args[6]);
-		//int partitionCount=getPartititionCount(args, conf);
-		int partitionCount=4;
+		int partitionCount=getPartititionCount(args[2], conf);
 		Job job = Job.getInstance(conf, "Partition");
 		job.setJarByClass(driver.PartitionCountDriver.class);
 		// TODO: specify a mapper
@@ -61,10 +60,11 @@ public class PartitionCountDriver {
 		FileInputFormat.setInputPaths(job, new Path(args[0]));
 		FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-		if (!job.waitForCompletion(true)) {
+		if (job.waitForCompletion(true)) {
 			Configuration conf2 = new Configuration();
-			FileSystem fs = FileSystem.get(conf2);
-			addOutput(fs,new Path(args[1]) , conf2);
+			//FileSystem fs = FileSystem.get(conf2);
+			//addOutput(fs,new Path(args[1]) , conf2);
+			conf2.set("outputPath", args[1]);
 			Job job2 = Job.getInstance(conf2, "Merging");
 			job2.setJarByClass(driver.PartitionCountDriver.class);
 			// TODO: specify a mapper
@@ -92,11 +92,11 @@ public class PartitionCountDriver {
 		
 	}
 
-	public static int getPartititionCount(String[] args, Configuration conf) throws IOException {
+	public static int getPartititionCount(String path, Configuration conf) throws IOException {
 		//get the number of partitions
 		FileSystem fs = FileSystem.get(conf);
 		int count=0;
-		BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(args[2]))));
+		BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(path))));
 		String line;
 		line = br.readLine();
 		while (line != null) {

@@ -60,16 +60,21 @@ public class Cluster extends Reducer<LongWritable, Text, Text, Text> {
 		partition.Rectangle ir=r.getInnerRectangle(epsilon);
 		for(int i=0;i<pl.size();i++) {
 			Point p=pl.get(i);
-			output.write("output"+key, new Text(p.toString()), new Text(type_map.get(p)+"|"+cmap.get(p)+"-"+key));
+			String cluster_id=null;
+			if(type_map.get(p)==type.NOISE)
+				cluster_id=cmap.get(p)+"";
+			else
+				cluster_id=cmap.get(p)+"-"+key;
+			output.write("output"+key, new Text(p.x()+","+p.y()), new Text(type_map.get(p).toString()+"&"+cluster_id));
 			if(!ir.containsPoint(p)) {
 				if(type_map.get(p)==type.CORE) {
 					if(r.containsPoint(p))
-						output.write("AP"+key, new Text(p.toString()), new Text(type_map.get(p)+"|"+cmap.get(p)+"-"+key));
+						output.write("AP"+key, new Text(p.x()+","+p.y()), new Text(type_map.get(p).toString()+"&"+cluster_id));
 					
 				}
 				else if(type_map.get(p)!=type.NOISE) {
 					if(!r.containsPoint(p))
-						output.write("BP"+key,  new Text(p.toString()), new Text(type_map.get(p)+"|"+cmap.get(p)+"-"+key));
+						output.write("BP"+key,  new Text(p.x()+","+p.y()), new Text(type_map.get(p).toString()+"&"+cluster_id));
 				}
 			}
 		}
