@@ -29,16 +29,18 @@ public class PartitionCountDriver {
 
 	public static void main(String[] args) throws Exception {
 		//Checking for the number of argument
-		if(args.length != 7) {
+		if(args.length != 8) {
 			System.out.println(args.length);
-			throw new IllegalArgumentException("Arguments expected- input output partition intersecting_partition merge_output epsilon minPnts"
+			throw new IllegalArgumentException("Arguments expected- input output partition intersecting_partition merge_output epsilon minPnts dataset"
 					);
 		}
 		Configuration conf = new Configuration();
 		DistributedCache.addCacheFile(new Path(args[2]).toUri(), conf);
 		conf.set("epsilon",args[5]);
 		conf.set("minPnts",args[6]);
-		int partitionCount=getPartititionCount(args[2], conf);
+		conf.set("dataset", args[7]);
+		//int partitionCount=getPartititionCount(args[2], conf);
+		int partitionCount=56;
 		Job job = Job.getInstance(conf, "Partition");
 		job.setJarByClass(driver.PartitionCountDriver.class);
 		// TODO: specify a mapper

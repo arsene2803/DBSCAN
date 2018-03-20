@@ -40,7 +40,7 @@ public class TestCostSpatialPartitioning {
 		cells.get(23).setNumPoints(0);
 		cells.get(24).setNumPoints(1);
 		CostSpatialPartitioning partioner=new CostSpatialPartitioning(grid);
-		//partioner.partition(20,5);
+		partioner.partition(10,5);
 		List<Rectangle> partitions =new ArrayList<>();
 		partitions.add(new Rectangle(0, 0, 50, 50));
 		partitions.add(new Rectangle(50, 0, 100, 50));

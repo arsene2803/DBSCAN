@@ -20,11 +20,13 @@ public class PartitionCount extends Mapper<LongWritable, Text, LongWritable, Tex
 	private static Map<Long, Rectangle> partition = new HashMap<>();
 	private static BufferedReader reader;
 	private static double epsilon;
+	private static int dataset;
 	@Override
 	protected void setup(Mapper<LongWritable, Text, LongWritable, Text>.Context context)
 			throws IOException, InterruptedException {
 		// TODO Auto-generated method stub
 		epsilon=Double.parseDouble(context.getConfiguration().get("epsilon"));
+		dataset=Integer.parseInt(context.getConfiguration().get("dataset"));
 		super.setup(context);
 		Path[] cacheFilesLocal = DistributedCache.getLocalCacheFiles(context.getConfiguration());
 		for (Path eachPath : cacheFilesLocal) {
@@ -56,13 +58,11 @@ public class PartitionCount extends Mapper<LongWritable, Text, LongWritable, Tex
 
 	public void map(LongWritable ikey, Text ivalue, Context context)
 			throws IOException, InterruptedException {
-		double[] coord=new double[2];
-		String line=ivalue.toString();
-		StringTokenizer st=new StringTokenizer(line,",");
-		int i=0;
-		while(st.hasMoreTokens()) {
-			coord[i++]=Double.parseDouble(st.nextToken().replace("\"", ""));
-		}
+		double[] coord ;
+		if(dataset==0)
+			coord=extractPoint(ivalue);
+		else
+			coord=util.Configuration.getPointsData(ivalue);
 		Point p=new Point(coord[0],coord[1]);
 		for(Long partitionId:partition.keySet()) {
 			Rectangle outerRectangle=partition.get(partitionId).getOuterRectangle(epsilon);
@@ -74,6 +74,17 @@ public class PartitionCount extends Mapper<LongWritable, Text, LongWritable, Tex
 			
 		}
 
+	}
+
+	public double[] extractPoint(Text ivalue) {
+		double[] coord=new double[2];
+		String line=ivalue.toString();
+		StringTokenizer st=new StringTokenizer(line,",");
+		int i=0;
+		while(st.hasMoreTokens()) {
+			coord[i++]=Double.parseDouble(st.nextToken().replace("\"", ""));
+		}
+		return coord;
 	}
 
 }

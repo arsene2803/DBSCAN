@@ -27,6 +27,7 @@ public class Dbscan {
 			flag_map.put(p, flag.not_visited);
 			rtree=rtree.add("Point Number-"+i,p);
 		}
+		
 		for(int i=0;i<pl.size();i++) {
 			Point p=pl.get(i);
 			if(flag_map.get(p)==flag.not_visited) {
@@ -69,7 +70,11 @@ public class Dbscan {
 							//check if core point
 							if(count >=minPnts) {
 								type_map.put(q, type.CORE);
-								nbhd_list.addAll(temp);
+								for(int m=0;m<temp.size();m++) {
+									Point d=temp.get(m);
+									if(!nbhd_list.contains(d))
+										nbhd_list.add(d);
+								}
 							}
 							else {
 								type_map.put(q, type.BORDER);

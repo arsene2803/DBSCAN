@@ -23,9 +23,9 @@ public class CellCountDriver {
 	public static void main(String[] args) throws Exception {
 		Configuration conf = new Configuration();
 		//Checking for the number of argument
-		if(args.length != 7) {
+		if(args.length != 8) {
 			System.out.println(args.length);
-			throw new IllegalArgumentException("Arguments expected- x_lb y_lb x_tr y_tr epsilon input output"
+			throw new IllegalArgumentException("Arguments expected- x_lb y_lb x_tr y_tr epsilon input output dataset_data"
 					);
 		}
 		Grid grid=new Grid();
@@ -38,6 +38,11 @@ public class CellCountDriver {
 		conf.set("num_cols",grid.getNum_cols()+"");
 		conf.set("num_rows", grid.getNum_rows()+"");
 		conf.set("unit_length",grid.getUnit_length()+"");
+		conf.set("dataset", args[7]);
+		conf.set("x_lb", args[0]);
+		conf.set("y_lb", args[1]);
+		conf.set("x_tr", args[2]);
+		conf.set("y_tr", args[3]);
 		Job job = Job.getInstance(conf, "Partitioning");
 		job.setJarByClass(driver.CellCountDriver.class);
 	

@@ -63,10 +63,14 @@ public class CostSpatialPartitioning {
 			double cost=estimateCost(grid);
 			if(cost>maxcost) {
 				List<Grid> splits=costBasedBinarySplit(grid,epsilon);
-				int index=0;
-				while(index!=2) {
-					taskqueue.add(splits.get(index++));
+				if(splits.size()==0) {
+					partitions.add(grid.getS());
+					continue;
 				}
+					
+				
+				for(int m=0;m<splits.size();m++)
+					taskqueue.addLast(splits.get(m));
 			}
 			else
 				partitions.add(grid.getS());
@@ -155,8 +159,11 @@ public class CostSpatialPartitioning {
 				minCost=diff;
 			}
 		}
-		splits.add(S1);
-		splits.add(S2);
+			if(S1!=null)
+			splits.add(S1);
+			if(S2!=null)
+			splits.add(S2);
+		
 		return splits;
 	}
 
@@ -195,7 +202,7 @@ public class CostSpatialPartitioning {
 		for(int i=0;i<cells.size();i++) {
 			long numPoints=cells.get(i).getNumPoints();
 			if(numPoints!=0) {
-					double costCell=calCost(numPoints,totalNumPoints);
+					double costCell=numPoints*calCost(numPoints,totalNumPoints);
 					cost+=costCell;
 				
 			}

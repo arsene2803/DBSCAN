@@ -41,13 +41,7 @@ public class Cluster extends Reducer<LongWritable, Text, Text, Text> {
 		List<Point> pl=new ArrayList<>();
 		// process values
 		for (Text val : values) {
-			int i=0;
-			double[] coord=new double[2]; 
-			String line=val.toString();
-			StringTokenizer st=new StringTokenizer(line,",");
-			while(st.hasMoreTokens()) {
-				coord[i++]=Double.parseDouble(st.nextToken().replace("\"", ""));
-			}
+			double[] coord =extractPoint(val);
 			pl.add(Geometries.point(coord[0], coord[1]));
 		}
 		Dbscan db=new Dbscan();
@@ -78,6 +72,17 @@ public class Cluster extends Reducer<LongWritable, Text, Text, Text> {
 				}
 			}
 		}
+	}
+
+	public double[] extractPoint(Text val) {
+		int i=0;
+		double[] coord=new double[2]; 
+		String line=val.toString();
+		StringTokenizer st=new StringTokenizer(line,",");
+		while(st.hasMoreTokens()) {
+			coord[i++]=Double.parseDouble(st.nextToken().replace("\"", ""));
+		}
+		return coord;
 	}
 
 	@Override
