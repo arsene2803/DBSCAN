@@ -25,6 +25,13 @@ public class CostSpatialPartitioning {
 		super();
 		this.smbr = smbr;
 		partitions=new ArrayList<>();
+		//calulate cost for each cell
+		List<Cell> cells=smbr.getCells();
+		for(int i=0;i<cells.size();i++) {
+			Cell c=cells.get(i);
+			c.setCost(calCost(c.getNumPoints()));
+			
+		}
 	}
 	
 	public CostSpatialPartitioning() {
@@ -58,13 +65,19 @@ public class CostSpatialPartitioning {
 	public void partition(double maxcost,double epsilon) {
 		Deque<Grid> taskqueue=new LinkedList<>();
 		taskqueue.addLast(smbr);
+		List<Double> cos=new ArrayList();
 		while(!taskqueue.isEmpty()) {
 			Grid grid=taskqueue.removeFirst();
-			double cost=estimateCost(grid);
+			double cost=grid.getCost();
+			System.out.println(cost);
+			if(cost==0) {
+				continue;
+			}
 			if(cost>maxcost) {
 				List<Grid> splits=costBasedBinarySplit(grid,epsilon);
 				if(splits.size()==0) {
 					partitions.add(grid.getS());
+					cos.add(cost);
 					continue;
 				}
 					
@@ -72,11 +85,19 @@ public class CostSpatialPartitioning {
 				for(int m=0;m<splits.size();m++)
 					taskqueue.addLast(splits.get(m));
 			}
-			else
+			else {
 				partitions.add(grid.getS());
+				cos.add(cost);
+			}
+			
+				
 		}
 		for(int i=0;i<partitions.size();i++) {
+
 			partitions.get(i).setId(i);
+		}
+		for(int k=0;k<cos.size();k++) {
+			System.out.println(cos.get(k));
 		}
 		
 		
@@ -113,14 +134,15 @@ public class CostSpatialPartitioning {
 			split_2.setCells(cells2);
 			
 			//get the costs
-			double split_1_cost=estimateCost(split_1);
-			double split_2_cost=estimateCost(split_2);
+			double split_1_cost=split_1.getCost();
+			double split_2_cost=split_2.getCost();
 			double diff=Math.abs(split_1_cost-split_2_cost);
 			if(diff<minCost) {
 				S1=split_1;
 				S2=split_2;
 				minCost=diff;
 			}
+			
 			
 				
 			
@@ -150,8 +172,8 @@ public class CostSpatialPartitioning {
 			split_2.setCells(cells2);
 			
 			//get the costs
-			double split_1_cost=estimateCost(split_1);
-			double split_2_cost=estimateCost(split_2);
+			double split_1_cost=split_1.getCost();
+			double split_2_cost=split_2.getCost();
 			double diff=Math.abs(split_1_cost-split_2_cost);
 			if(diff<minCost) {
 				S1=split_1;
@@ -188,28 +210,7 @@ public class CostSpatialPartitioning {
 		}
 	}
 
-	private double estimateCost(Grid grid) {
-		// TODO Auto-generated method stub
-		List<Cell> cells=grid.getCells();
-		double cost=0;
-		long totalNumPoints=0;
-		for(int i=0;i<cells.size();i++) {
-			totalNumPoints+=cells.get(i).getNumPoints();
-		}
-		if(totalNumPoints==0)
-			return cost;
-			
-		for(int i=0;i<cells.size();i++) {
-			long numPoints=cells.get(i).getNumPoints();
-			if(numPoints!=0) {
-					double costCell=numPoints*calCost(numPoints,totalNumPoints);
-					cost+=costCell;
-				
-			}
-			
-		}
-		return cost;
-	}
+	
 	public void findIntersections(double searchDistance) {
 		if(instersectingPartitions==null)
 			instersectingPartitions=new HashMap<>();
@@ -256,12 +257,13 @@ public class CostSpatialPartitioning {
 		}
 	}
 
-	private double calCost(long numberOfPoints,long totalNumPoints) {
+	private double calCost(long numberOfPoints) {
 		// TODO Auto-generated method stub
+		if(numberOfPoints==0)
+			return 0;
 		double f=100;
-		double h=1+Math.ceil(Math.log10((totalNumPoints/f))/Math.log10(f));
-		double cost=1+h+Math.sqrt(numberOfPoints)*(2/(Math.sqrt(f)-1))+numberOfPoints*(1/(f-1));
-		return cost;
+		double cost=1+Math.sqrt(numberOfPoints)*(2/(Math.sqrt(f)-1))+numberOfPoints*(1/(f-1));
+		return numberOfPoints*cost;
 	}
 	
 

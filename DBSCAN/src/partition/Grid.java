@@ -92,6 +92,19 @@ public class Grid {
 		}
 		
 	}
+	public double getCost() {
+		double cost=0;
+		long numPoints=0;
+		double f=100;
+		for(int i=0;i<cells.size();i++) {
+			cost+=cells.get(i).getCost();
+			numPoints+=cells.get(i).getNumPoints();
+		}
+		if(numPoints==0)
+			return 0;
+		double h=1+Math.ceil(Math.log10((numPoints/f))/Math.log10(f));
+		return cost+h;
+	}
 	public double getLowerBottomX() {
 		return S.getLower_x();
 		

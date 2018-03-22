@@ -44,12 +44,13 @@ public class Cluster extends Reducer<LongWritable, Text, Text, Text> {
 			double[] coord =extractPoint(val);
 			pl.add(Geometries.point(coord[0], coord[1]));
 		}
+		long key=ikey.get();
 		Dbscan db=new Dbscan();
 		Map<Point,type> type_map=new HashMap<>();
 		Map<Point,flag> flag_map=new HashMap<>();
 		Map<Point,Integer> cmap=new HashMap<>();
+		System.out.println(key);
 		db.createClusters(pl, minPnts, epsilon, type_map, flag_map, cmap);
-		long key=ikey.get();
 		partition.Rectangle r=partition.get(key);
 		partition.Rectangle ir=r.getInnerRectangle(epsilon);
 		for(int i=0;i<pl.size();i++) {

@@ -6,7 +6,7 @@ public class GridTest {
 	
 	public static void testGrid() {
 		Grid grid=new Grid();
-		grid.createGrid(0, 0, 50, 50, 10);
+		grid.createGrid(0, 0, 10, 10, 2);
 	}
 	public static void main(String[] args) {
 		testGrid();

@@ -40,7 +40,7 @@ public class PartitionCountDriver {
 		conf.set("minPnts",args[6]);
 		conf.set("dataset", args[7]);
 		//int partitionCount=getPartititionCount(args[2], conf);
-		int partitionCount=56;
+		int partitionCount=386;
 		Job job = Job.getInstance(conf, "Partition");
 		job.setJarByClass(driver.PartitionCountDriver.class);
 		// TODO: specify a mapper

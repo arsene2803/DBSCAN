@@ -13,6 +13,7 @@ public class TestCostSpatialPartitioning {
 	public static void main(String args[]) {
 		Grid grid=new Grid();
 		grid.createGrid(0, 0, 100, 100, 5);
+		double a=Double.parseDouble(".99");
 		List<Cell> cells=grid.getCells();
 		cells.get(0).setNumPoints(0);
 		cells.get(1).setNumPoints(0);
