@@ -49,7 +49,7 @@ public class partitionGenerator {
 				cell.setNumPoints(0);
 		}
 		
-		CostSpatialPartitioning partitioner= createPartitions(grid, 1000000, epsilon);
+		CostSpatialPartitioning partitioner= createPartitions(grid, 10000, epsilon);
 		writePartitions(partitioner.getPartitions(),"partitions.tsv");
 		writeIntersectingPart(partitioner.getInstersectingPartitions(),"intersectPartition.tsv");
 			

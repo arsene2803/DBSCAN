@@ -50,6 +50,7 @@ public class Cluster extends Reducer<LongWritable, Text, Text, Text> {
 		Map<Point,flag> flag_map=new HashMap<>();
 		Map<Point,Integer> cmap=new HashMap<>();
 		System.out.println(key);
+		System.out.println("point size "+pl.size() );
 		db.createClusters(pl, minPnts, epsilon, type_map, flag_map, cmap);
 		partition.Rectangle r=partition.get(key);
 		partition.Rectangle ir=r.getInnerRectangle(epsilon);

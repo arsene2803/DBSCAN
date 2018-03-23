@@ -96,14 +96,18 @@ public class Grid {
 		double cost=0;
 		long numPoints=0;
 		double f=100;
+		int cell_count=0;
 		for(int i=0;i<cells.size();i++) {
-			cost+=cells.get(i).getCost();
-			numPoints+=cells.get(i).getNumPoints();
+			Cell cell=cells.get(i);
+			cost+=cell.getCost();
+			if(cell.getNumPoints()!=0)
+				cell_count+=1;
+			numPoints+=cell.getNumPoints();
 		}
 		if(numPoints==0)
 			return 0;
 		double h=1+Math.ceil(Math.log10((numPoints/f))/Math.log10(f));
-		return cost+h;
+		return cost+h*cell_count;
 	}
 	public double getLowerBottomX() {
 		return S.getLower_x();
